@@ -6,17 +6,25 @@ const fetchData = async (searchTerm) => {
 		}
 	});
 
-	console.log(response.data);
+	if (response.data.Error) {
+		return [];
+	}
+	return response.data.Search;
 };
 
-let timeoutId;
-const onInput = (event) => {
-	if (timeoutId) {
-		clearTimeout(timeoutId);
-	}
-	timeoutId = setTimeout(() => {
-		fetchData(event.target.value);
-	}, 500);
-};
 const input = document.querySelector('input');
-input.addEventListener('input', onInput);
+
+const onInput = async (event) => {
+	const movies = await fetchData(event.target.value);
+
+	for (let movie of movies) {
+		const div = document.createElement('div');
+		div.innerHTML = `
+            <img src="${movie.Poster}"/>
+            <h1>${movie.Title}</h1>
+        `;
+		document.querySelector('#target').appendChild(div);
+	}
+};
+
+input.addEventListener('input', debounce(onInput, 500));
